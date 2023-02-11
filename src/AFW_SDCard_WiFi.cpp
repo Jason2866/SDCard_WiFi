@@ -41,9 +41,6 @@ bool initFailed = false;
 // FTP server
 FtpServer ftpSrv;
 
-// BOOT button
-#define BOOT_BUTTON_PIN 0
-
 // Wifi
 WiFiManager wifiManager;
 
@@ -112,8 +109,7 @@ void setup()
 	ftpSrv.begin("anonymous", "", SD_CS, SPI_FULL_SPEED); //username, password for ftp.  set ports in ESP8266FtpServer.h  (default 21, 50009 for PASV)
 	Serial.println("FTP server started");
 
-	// Setup FLASH button and LED
-	pinMode(BOOT_BUTTON_PIN, INPUT_PULLUP);
+	// Setup LED
 	pinMode(LED_PIN, OUTPUT);
 	digitalWrite(LED_PIN, HIGH);
 
