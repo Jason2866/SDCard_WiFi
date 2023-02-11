@@ -151,7 +151,7 @@ int WebOTA::add_http_routes(WebServer *server, const char *path) {
 		IPAddress ip = WiFi.localIP();
 		String localIP = String(ip[0]) + "." +  String(ip[1]) + "." + String(ip[2]) + "." + String(ip[3]);
 		html += FPSTR(afw_version_html);
-		html += "<br><a href=\"https://github.com/AlbrechtL/BTT_TF_Cloud_AFW/\">https://github.com/AlbrechtL/BTT_TF_Cloud_AFW/</a>";
+		html += "<br><a href=\"https://github.com/Jason2866/SDCard_WiFi/\">https://github.com/Jason2866/SDCard_WiFi/</a>";
 		html += "<br><br>";
 		html += "<b>Supported Services</b>";
 		html += "<ul>";
@@ -161,7 +161,7 @@ int WebOTA::add_http_routes(WebServer *server, const char *path) {
 		html += "</ul>";
 		html += "<br>";
 		html += "<br>";
-		html += "HINT: The BTT TF Cloud V1.0 device supports up to 32 GB microSD/TF cards.";
+		html += "HINT: The SDCard WiFi device supports up to 32 GB microSD cards.";
 		html += "<br>";
 		html += "<br>";
 		server->send(200, "text/html", html.c_str());
