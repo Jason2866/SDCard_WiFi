@@ -14,7 +14,7 @@
 // constants for WebServer
 #define CONTENT_LENGTH_UNKNOWN ((size_t) -1)
 #define CONTENT_LENGTH_NOT_SET ((size_t) -2)
-#define HTTP_MAX_POST_WAIT 		5000 
+#define HTTP_MAX_POST_WAIT 		5000
 
 enum ResourceType { RESOURCE_NONE, RESOURCE_FILE, RESOURCE_DIR };
 enum DepthType { DEPTH_NONE, DEPTH_CHILD, DEPTH_ALL };
@@ -28,10 +28,10 @@ public:
 	bool isClientWaiting();
 	void handleClient(String blank = "");
 	void rejectClient(String rejectMessage);
-	
+
 protected:
 	typedef void (ESPWebDAV::*THandlerFunction)(String);
-	
+
 	void processClient(THandlerFunction handler, String message);
 	void handleNotFound();
 	void handleReject(String rejectMessage);
@@ -62,8 +62,8 @@ protected:
 	void setContentLength(size_t len);
 	size_t readBytesWithTimeout(uint8_t *buf, size_t bufSize);
 	size_t readBytesWithTimeout(uint8_t *buf, size_t bufSize, size_t numToRead);
-	
-	
+
+
 	// variables pertaining to current most HTTP request being serviced
 	WiFiServer *server;
 	sdfat::SdFat sd;

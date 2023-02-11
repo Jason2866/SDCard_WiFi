@@ -3,7 +3,7 @@
  * based on FTP Serveur for Arduino Due and Ethernet shield (W5100) or WIZ820io (W5200)
  * based on Jean-Michel Gallego's work
  * modified to work with esp8266 SPIFFS by David Paiva (david@nailbuster.com)
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,7 +38,7 @@
 
 #define FTP_SERVER_VERSION AFW_VERSION
 
-#define FTP_CTRL_PORT    21          // Command port on wich server is listening  
+#define FTP_CTRL_PORT    21          // Command port on wich server is listening
 #define FTP_DATA_PORT_PASV 50009     // Data port in passive mode
 
 #define FTP_TIME_OUT  5           // Disconnect client after 5 minutes of inactivity
@@ -54,7 +54,7 @@ class FtpServer
 public:
   void    begin(String uname, String pword, int chipSelectPin, SPISettings spiSettings);
   void    handleFTP();
-  
+
   int8_t   cmdStatus,SD_Status;                 // status of ftp command connexion
 
 private:
@@ -80,12 +80,12 @@ private:
   IPAddress      dataIp;              // IP address of client for data
   WiFiClient client;
   WiFiClient data;
-  
+
   sdfat::FatFile file;
   sdfat::SdFat SD;
   int chipSelectPin;
   SPISettings spiSettings;
-  
+
   boolean  dataPassiveConn;
   uint16_t dataPort;
   char     buf[ FTP_BUF_SIZE ];       // data buffer for transfers
@@ -98,7 +98,7 @@ private:
   int8_t   transferStatus;            // status of ftp data transfer
   uint32_t millisTimeOut,             // disconnect after 5 min of inactivity
            millisDelay,
-           millisEndConnection,       // 
+           millisEndConnection,       //
            millisBeginTrans,          // store time of beginning of a transaction
            bytesTransfered;           //
   String   _FTP_USER;

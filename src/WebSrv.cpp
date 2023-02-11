@@ -113,7 +113,7 @@ void ESPWebDAV::processClient(THandlerFunction handler, String message) {
 	// Wait until the client sends some data
 	while(!client.available())
 		delay(1);
-	
+
 	// reset all variables
 	_chunked = false;
 	_responseHeaders = String();
@@ -129,7 +129,7 @@ void ESPWebDAV::processClient(THandlerFunction handler, String message) {
 	if(parseRequest())
 		// invoke the handler
 		(this->*handler)(message);
-		
+
 	// finalize the response
 	if(_chunked)
 		sendContent("");
@@ -150,7 +150,7 @@ bool ESPWebDAV::parseRequest() {
 	// Read the first line of HTTP request
 	String req = client.readStringUntil('\r');
 	client.readStringUntil('\n');
-	
+
 	// First line of HTTP request looks like "GET /path HTTP/1.1"
 	// Retrieve the "/path" part by finding the spaces
 	int addr_start = req.indexOf(' ');
@@ -162,26 +162,26 @@ bool ESPWebDAV::parseRequest() {
 	method = req.substring(0, addr_start);
 	uri = urlDecode(req.substring(addr_start + 1, addr_end));
 	// DBG_PRINT("method: "); DBG_PRINT(method); DBG_PRINT(" url: "); DBG_PRINTLN(uri);
-	
+
 	// parse and finish all headers
 	String headerName;
 	String headerValue;
-	
+
 	while(1) {
 		req = client.readStringUntil('\r');
 		client.readStringUntil('\n');
-		if(req == "") 
+		if(req == "")
 			// no more headers
 			break;
-			
+
 		int headerDiv = req.indexOf(':');
 		if (headerDiv == -1)
 			break;
-		
+
 		headerName = req.substring(0, headerDiv);
 		headerValue = req.substring(headerDiv + 2);
 		// DBG_PRINT("\t"); DBG_PRINT(headerName); DBG_PRINT(": "); DBG_PRINTLN(headerValue);
-		
+
 		if(headerName.equalsIgnoreCase("Host"))
 			hostHeader = headerValue;
 		else if(headerName.equalsIgnoreCase("Depth"))
@@ -191,7 +191,7 @@ bool ESPWebDAV::parseRequest() {
 		else if(headerName.equalsIgnoreCase("Destination"))
 			destinationHeader = headerValue;
 	}
-	
+
 	return true;
 }
 
@@ -231,7 +231,7 @@ void ESPWebDAV::_prepareHeader(String& response, String code, const char* conten
 
 	if(content_type)
 		sendHeader("Content-Type", content_type, true);
-	
+
 	if(_contentLength == CONTENT_LENGTH_NOT_SET)
 		sendHeader("Content-Length", String(contentLength));
 	else if(_contentLength != CONTENT_LENGTH_UNKNOWN)
@@ -254,7 +254,7 @@ void ESPWebDAV::sendContent(const String& content) {
 // ------------------------
 	const char * footer = "\r\n";
 	size_t size = content.length();
-	
+
 	if(_chunked) {
 		char * chunkSize = (char *) malloc(11);
 		if(chunkSize) {
@@ -263,9 +263,9 @@ void ESPWebDAV::sendContent(const String& content) {
 			free(chunkSize);
 		}
 	}
-	
+
 	client.write(content.c_str(), size);
-	
+
 	if(_chunked) {
 		client.write(footer, 2);
 		if (size == 0) {
@@ -281,7 +281,7 @@ void ESPWebDAV::sendContent_P(PGM_P content) {
 // ------------------------
 	const char * footer = "\r\n";
 	size_t size = strlen_P(content);
-	
+
 	if(_chunked) {
 		char * chunkSize = (char *) malloc(11);
 		if(chunkSize) {
@@ -290,9 +290,9 @@ void ESPWebDAV::sendContent_P(PGM_P content) {
 			free(chunkSize);
 		}
 	}
-	
+
 	client.write_P(content, size);
-	
+
 	if(_chunked) {
 		client.write(footer, 2);
 		if (size == 0) {
@@ -330,7 +330,7 @@ size_t ESPWebDAV::readBytesWithTimeout(uint8_t *buf, size_t bufSize, size_t numT
 // ------------------------
 	int timeout_ms = HTTP_MAX_POST_WAIT;
 	size_t numAvailable = 0;
-	
+
 	while(((numAvailable = client.available()) < numToRead) && client.connected() && timeout_ms--) 
 		delay(1);
 

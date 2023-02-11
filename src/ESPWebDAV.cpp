@@ -65,20 +65,20 @@ void ESPWebDAV::handleReject(String rejectMessage)	{
 	// handle options
 	if(method.equals("OPTIONS"))
 		return handleOptions(RESOURCE_NONE);
-	
+
 	// handle properties
 	if(method.equals("PROPFIND"))	{
 		sendHeader("Allow", "PROPFIND,OPTIONS,DELETE,COPY,MOVE");
 		setContentLength(CONTENT_LENGTH_UNKNOWN);
 		send("207 Multi-Status", "application/xml;charset=utf-8", "");
 		sendContent(F("<?xml version=\"1.0\" encoding=\"utf-8\"?><D:multistatus xmlns:D=\"DAV:\"><D:response><D:href>/</D:href><D:propstat><D:status>HTTP/1.1 200 OK</D:status><D:prop><D:getlastmodified>Fri, 30 Nov 1979 00:00:00 GMT</D:getlastmodified><D:getetag>\"3333333333333333333333333333333333333333\"</D:getetag><D:resourcetype><D:collection/></D:resourcetype></D:prop></D:propstat></D:response>"));
-		
+
 		if(depthHeader.equals("1"))	{
 			sendContent(F("<D:response><D:href>/"));
 			sendContent(rejectMessage);
 			sendContent(F("</D:href><D:propstat><D:status>HTTP/1.1 200 OK</D:status><D:prop><D:getlastmodified>Fri, 01 Apr 2016 16:07:40 GMT</D:getlastmodified><D:getetag>\"2222222222222222222222222222222222222222\"</D:getetag><D:resourcetype/><D:getcontentlength>0</D:getcontentlength><D:getcontenttype>application/octet-stream</D:getcontenttype></D:prop></D:propstat></D:response>"));
 		}
-		
+
 		sendContent(F("</D:multistatus>"));
 		return;
 	}
@@ -116,7 +116,7 @@ void ESPWebDAV::handleRequest(String blank)	{
 	// handle properties
 	if(method.equals("PROPFIND"))
 		return handleProp(resource);
-	
+
 	if(method.equals("GET"))
 		return handleGet(resource, true);
 
@@ -130,17 +130,17 @@ void ESPWebDAV::handleRequest(String blank)	{
 	// handle file create/uploads
 	if(method.equals("PUT"))
 		return handlePut(resource);
-	
+
 	// handle file locks
 	if(method.equals("LOCK"))
 		return handleLock(resource);
-	
+
 	if(method.equals("UNLOCK"))
 		return handleUnlock(resource);
-	
+
 	if(method.equals("PROPPATCH"))
 		return handlePropPatch(resource);
-	
+
 	// directory creation
 	if(method.equals("MKCOL"))
 		return handleDirectoryCreate(resource);
@@ -148,7 +148,7 @@ void ESPWebDAV::handleRequest(String blank)	{
 	// move a file or directory
 	if(method.equals("MOVE"))
 		return handleMove(resource);
-	
+
 	// delete a file or directory
 	if(method.equals("DELETE"))
 		return handleDelete(resource);
@@ -173,18 +173,18 @@ void ESPWebDAV::handleOptions(ResourceType resource)	{
 void ESPWebDAV::handleLock(ResourceType resource)	{
 // ------------------------
 	DBG_PRINTLN("Processing LOCK");
-	
+
 	// does URI refer to an existing resource
 	if(resource == RESOURCE_NONE)
 		return handleNotFound();
-	
+
 	sendHeader("Allow", "PROPPATCH,PROPFIND,OPTIONS,DELETE,UNLOCK,COPY,LOCK,MOVE,HEAD,POST,PUT,GET");
 	sendHeader("Lock-Token", "urn:uuid:26e57cb3-834d-191a-00de-000042bdecf9");
 
 	size_t contentLen = contentLengthHeader.toInt();
 	uint8_t buf[1024];
 	size_t numRead = readBytesWithTimeout(buf, sizeof(buf), contentLen);
-	
+
 	if(numRead == 0)
 		return handleNotFound();
 
@@ -194,7 +194,7 @@ void ESPWebDAV::handleLock(ResourceType resource)	{
 	int endIdx = inXML.indexOf("</D:href>");
 	if(startIdx < 0 || endIdx < 0)
 		return handleNotFound();
-		
+
 	String lockUser = inXML.substring(startIdx + 8, endIdx);
 	String resp1 = F("<?xml version=\"1.0\" encoding=\"utf-8\"?><D:prop xmlns:D=\"DAV:\"><D:lockdiscovery><D:activelock><D:locktype><write/></D:locktype><D:lockscope><exclusive/></D:lockscope><D:locktoken><D:href>urn:uuid:26e57cb3-834d-191a-00de-000042bdecf9</D:href></D:locktoken><D:lockroot><D:href>");
 	String resp2 = F("</D:href></D:lockroot><D:depth>infinity</D:depth><D:owner><a:href xmlns:a=\"DAV:\">");
@@ -235,7 +235,7 @@ void ESPWebDAV::handleProp(ResourceType resource)	{
 		depth = DEPTH_CHILD;
 	else if(depthHeader.equals("infinity"))
 		depth = DEPTH_ALL;
-	
+
 	DBG_PRINT("Depth: "); DBG_PRINTLN(depth);
 
 	// does URI refer to an existing resource
@@ -414,7 +414,7 @@ void ESPWebDAV::handlePut(ResourceType resource)	{
 		nFile.close();
 		// delete old file
 		sd.remove(uri.c_str());
-	
+
 		// create a contiguous file
 		size_t contBlocks = (contentLen/WRITE_BLOCK_CONST + 1);
 		uint32_t bgnBlock, endBlock;
@@ -487,11 +487,11 @@ void ESPWebDAV::handleWriteError(String message, FatFile *wFile)	{
 void ESPWebDAV::handleDirectoryCreate(ResourceType resource)	{
 // ------------------------
 	DBG_PRINTLN("Processing MKCOL");
-	
+
 	// does URI refer to anything
 	if(resource != RESOURCE_NONE)
 		return handleNotFound();
-	
+
 	// create directory
 	if (!sd.mkdir(uri.c_str(), true)) {
 		// send error
@@ -511,16 +511,16 @@ void ESPWebDAV::handleDirectoryCreate(ResourceType resource)	{
 void ESPWebDAV::handleMove(ResourceType resource)	{
 // ------------------------
 	DBG_PRINTLN("Processing MOVE");
-	
+
 	// does URI refer to anything
 	if(resource == RESOURCE_NONE)
 		return handleNotFound();
 
 	if(destinationHeader.length() == 0)
 		return handleNotFound();
-	
+
 	String dest = urlDecode(urlToUri(destinationHeader));
-		
+
 	DBG_PRINT("Move destination: "); DBG_PRINTLN(dest);
 
 	// move file or directory
@@ -543,20 +543,20 @@ void ESPWebDAV::handleMove(ResourceType resource)	{
 void ESPWebDAV::handleDelete(ResourceType resource)	{
 // ------------------------
 	DBG_PRINTLN("Processing DELETE");
-	
+
 	// does URI refer to anything
 	if(resource == RESOURCE_NONE)
 		return handleNotFound();
 
 	bool retVal;
-	
+
 	if(resource == RESOURCE_FILE)
 		// delete a file
 		retVal = sd.remove(uri.c_str());
 	else
 		// delete a directory
 		retVal = sd.rmdir(uri.c_str());
-		
+
 	if(!retVal)	{
 		// send error
 		send("500 Internal Server Error", "text/plain", "Unable to delete");
@@ -568,4 +568,3 @@ void ESPWebDAV::handleDelete(ResourceType resource)	{
 	sendHeader("Allow", "OPTIONS,MKCOL,LOCK,POST,PUT");
 	send("200 OK", NULL, "");
 }
-

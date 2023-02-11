@@ -6,7 +6,7 @@
  * modified to work with BTT TF Cloud devices by Albrecht Lohofener albrechtloh@gmx.de
  *  - Added support for SDFAT
  *  - Added folder support
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -246,10 +246,10 @@ boolean FtpServer::processCommand()
     char path[FTP_CWD_SIZE];
 
     if (strcmp(parameters, ".") == 0) // 'CWD .' is the same as PWD command
-    { 
+    {
       client.println("257 \"" + String(cwdName) + "\" is your current directory");
     }
-    else 
+    else
     {
       if (parameters[0] == '/') // Estimate full path
       {

@@ -1,8 +1,8 @@
 /*
  * Alternative firmware for BTT TF Cloud devices
- * 
+ *
  * 2021 - Albrecht Lohofener (albrechtloh@gmx.de)
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -24,7 +24,7 @@
 #include "ESPFtpServer.h"
 #include "WebOTA.h"
 
-#define HOSTNAME "BTT_TF_CLOUD_AFW"
+#define HOSTNAME "SDCard_WiFi"
 
 // SD card
 #define SD_CS 5
@@ -78,9 +78,9 @@ void setup()
 	if(!res) {
         Serial.println("Running config portal");
         // ESP.restart();
-    } 
+    }
     else {
-        //if you get here you have connected to the WiFi    
+        //if you get here you have connected to the WiFi
         Serial.println("connected...yeey :)");
     }
 
@@ -165,7 +165,7 @@ void handleBootButton(void)
 			if(digitalRead(BOOT_BUTTON_PIN) == 0)
 			{
 				Serial.println("BOOT button pressed for 5 seconds ");
-				
+
 				// Let the LED 5 seconds blinking
 				for(int i = 0; i< 25; i++)
 				{
