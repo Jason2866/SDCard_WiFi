@@ -49,7 +49,6 @@ WiFiManager wifiManager;
 
 // LED
 #define LED_PIN 2
-void handleLED(void);
 
 void setup()
 {
@@ -144,5 +143,4 @@ void loop()
 
 	// Handle WiFi Manager
 	// wifiManager.process();
-	// handleLED();
 }
