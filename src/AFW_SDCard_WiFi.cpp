@@ -17,29 +17,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 #include "Version.h"
-#include "ESPWebDAV.h"
-#include "ESPFtpServer.h"
 #include "WebOTA.h"
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+//#include "FS.h" // SPIFFS is declared
+#include "LittleFS.h" // LittleFS is declared
+#include "SDFS.h" // SDFS is declared
+#include <SPI.h>
+#include "sdios.h"
+#include <ESPWebDAV.h>
 
 #define HOSTNAME "SDCard_WiFi"
 
-// SD card
+// SD card chip select
 #define SD_CS 5
+int chipSelect = SD_CS;
+#define SPI_SPEED SD_SCK_MHZ(50)
 
 // Webserver Infopage, Firmwareupdate
 #define WEB_SERVER_PORT 80
 
+//FS& gfs = SPIFFS;
+FS& gfs = LittleFS;
+//FS& gfs = SDFS;
+
+#define SD_FAT_TYPE 3
+SdFs sd;
+FsFile file;
+
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
+WiFiServer tcp(WEBDAV_SERVER_PORT);
+
 ESPWebDAV dav;
 String statusMessage;
 bool initFailed = false;
-
-// FTP server
-FtpServer ftpSrv;
 
 // Wifi
 WiFiManager wifiManager;
@@ -76,7 +90,8 @@ void setup()
     }
     else {
         //if you get here you have connected to the WiFi
-        Serial.println("connected...yeey :)");
+        MDNS.begin(HOSTNAME);
+		Serial.println("connected...yeey :)");
     }
 
 	// Init OTA firmware updater
@@ -92,22 +107,17 @@ void setup()
 	Serial.println("--------------------------------");
 	Serial.println("Start WebDAV server");
 	Serial.println("--------------------------------");
-	if (!dav.init(WEBDAV_SERVER_PORT))
-	{
-		statusMessage = "An error occured while initialization of WebDAV server";
-		Serial.print("ERROR: ");
-		Serial.println(statusMessage);
-		initFailed = true;
-	}
-	Serial.println("WebDAV server started");
 
-	// Start FTP server
-	Serial.println("");
-	Serial.println("--------------------------------");
-	Serial.println("Start FTP server");
-	Serial.println("--------------------------------");
-	ftpSrv.begin("anonymous", "", SD_CS, SPI_FULL_SPEED); //username, password for ftp.  set ports in ESP8266FtpServer.h  (default 21, 50009 for PASV)
-	Serial.println("FTP server started");
+	//sd.begin(chipSelect, SPI_SPEED);
+	gfs.begin();
+    tcp.begin();
+    dav.begin(&tcp, &gfs);
+    dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
+    {
+        Serial.printf("%s: '%s': %d%%\n", receive ? "recv" : "send", name, percent);
+    });
+
+	Serial.println("WebDAV server started");
 
 	// Setup LED
 	pinMode(LED_PIN, OUTPUT);
@@ -118,21 +128,8 @@ void setup()
 
 void loop()
 {
-	// WebDAV
-	if (dav.isClientWaiting())
-	{
-		Serial.println("Client connected");
-		if (initFailed)
-			return dav.rejectClient(statusMessage);
-
-		// call handle if server was initialized properly
-
-		dav.initSD(SD_CS, SPI_FULL_SPEED);
-		dav.handleClient();
-	}
-
-	// FTP
-	ftpSrv.handleFTP(); //make sure in loop you call handleFTP()!!
+	MDNS.update();
+	dav.handleClient();
 
 	// Web OTA update
 	webota.handle();
