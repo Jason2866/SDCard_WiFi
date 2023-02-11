@@ -43,7 +43,6 @@ FtpServer ftpSrv;
 
 // BOOT button
 #define BOOT_BUTTON_PIN 0
-void handleBootButton(void);
 
 // Wifi
 WiFiManager wifiManager;
@@ -146,76 +145,4 @@ void loop()
 	// Handle WiFi Manager
 	// wifiManager.process();
 	// handleLED();
-	handleBootButton();
 }
-
-// The flash button is used to reset the WiFi settings
-void handleBootButton(void)
-{
-	if(digitalRead(BOOT_BUTTON_PIN) == 0)
-	{
-		delay(50); // Debounce
-
-		if(digitalRead(BOOT_BUTTON_PIN) == 0)
-		{
-			Serial.println("BOOT button pressed");
-
-			delay(5000); // Wait 5 seconds
-
-			if(digitalRead(BOOT_BUTTON_PIN) == 0)
-			{
-				Serial.println("BOOT button pressed for 5 seconds ");
-
-				// Let the LED 5 seconds blinking
-				for(int i = 0; i< 25; i++)
-				{
-					digitalWrite(LED_PIN, LOW);
-					delay(200);
-					digitalWrite(LED_PIN, HIGH);
-					delay(200);
-				}
-
-				Serial.println("Reset WiFi settings");
-				wifiManager.resetSettings();
-
-				Serial.println("Restarting ...");
-				ESP.restart();
-			}
-		}
-	}
-}
-
-// The LED blinks of the WiFi needs to be configured
-// void handleLED(void)
-// {
-// 	static uint32_t millisLED = 0;
-// 	static bool isTimeout = true;
-// 	static bool toggle = false;
-
-// 	if(wifiManager.getConfigPortalActive())
-// 	{
-// 		if(isTimeout)
-// 		{
-// 			millisLED = millis() + 0.5 * 1000; // 1 seconds
-// 			isTimeout = false;
-// 		}
-// 	}
-// 	else
-// 	{
-// 		// Switch off LED
-// 		digitalWrite(LED_PIN, HIGH);
-// 	}
-
-// 	// Wait for timeout
-// 	if(!(int32_t)(millisLED - millis()) > 0)
-// 	{
-// 		if(!isTimeout)
-// 		{
-// 			isTimeout = true;
-
-// 			// Let the LED blink
-// 			toggle = !toggle;
-// 			digitalWrite(LED_PIN, toggle);
-// 		}
-// 	}
-// }
