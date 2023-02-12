@@ -22,8 +22,7 @@
 #include "WebOTA.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-//#include "FS.h" // SPIFFS is declared
-#include "LittleFS.h" // LittleFS is declared
+//#include "LittleFS.h" // LittleFS is declared
 #include "SDFS.h" // SDFS is declared
 #include <SPI.h>
 #include "sdios.h"
@@ -33,7 +32,6 @@
 
 // SD card chip select
 #define SD_CS 5
-int csPin = SD_CS;
 int chipSelect = SD_CS;
 #define SPI_SPEED SD_SCK_MHZ(50)
 int spi = SD_SCK_MHZ(50);
@@ -42,12 +40,8 @@ int spi = SD_SCK_MHZ(50);
 #define WEB_SERVER_PORT 80
 
 //FS& gfs = SPIFFS;
-FS& gfs = LittleFS;
-//FS& gfs = SDFS;
-
-#define SD_FAT_TYPE 3
-SdFs sd;
-FsFile file;
+//FS& gfs = LittleFS;
+FS& gfs = SDFS;
 
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
@@ -110,6 +104,9 @@ void setup()
 	Serial.println("Start WebDAV server");
 	Serial.println("--------------------------------");
 	
+	SDFSConfig config;
+        config.setCSPin(chipSelect);
+        SDFS.setConfig(config);
 	gfs.begin();
         tcp.begin();
         dav.begin(&tcp, &gfs);
