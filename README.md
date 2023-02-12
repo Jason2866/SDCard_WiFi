@@ -28,7 +28,7 @@ Use Platformio ;-)
 5. Release the module FLSH button
 6. Click Upload Button in VSC
 
-A backup of the original firmware is always recommended. Read the section "Backup of original firmware", please.
+A backup of the original firmware is always recommended.
 
 ### Over-the-Air (OTA)
 This options is only available if you already have an installed AFW.
