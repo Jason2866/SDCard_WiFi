@@ -49,7 +49,7 @@ This options is only available if you already have an installed AFW.
 ## Usage
 
 ### WiFi Config
-If no WiFi settings are stored the device opens a new access point with the SSID `BTT_TF_CLOUD_AFW`.
+If no WiFi settings are stored the device opens a new access point with the SSID `SDCard_WiFi`.
 
 **How to set up**
 
