@@ -23,8 +23,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include "SDFS.h"
-#include <SPI.h>
-#include "sdios.h"
+
 #include <ESPWebDAV.h>
 
 #include <FtpServer.h>
@@ -32,11 +31,14 @@
 
 #define HOSTNAME "SDCard_WiFi"
 
-// SD card chip select
+// LED
+#define LED_PIN 2
+
+// SD card chip select and SPI Speed
 #define SD_CS 5
-int chipSelect = SD_CS;
 #define SPI_SPEED SD_SCK_MHZ(50)
-int spi = SD_SCK_MHZ(50);
+int chipSelect = SD_CS;
+int spi = SPI_SPEED;
 
 // Webserver Infopage, Firmwareupdate
 #define WEB_SERVER_PORT 80
@@ -48,8 +50,8 @@ FS& gfs = SDFS;
 // FtpServer ftpSrv( 221, 25000 );
 // FtpServer ftpSrv( 421 ); // Default data port in passive mode is 55600
 FtpServer ftpSrv; // Default command port is 21 ( !! without parenthesis !! )
-#define ftp_user user
-#define ftp_pass password
+#define ftp_user "user"
+#define ftp_pass "password"
 
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
@@ -57,13 +59,9 @@ WiFiServer tcp(WEBDAV_SERVER_PORT);
 
 ESPWebDAV dav;
 String statusMessage;
-bool initFailed = false;
 
 // Wifi
 WiFiManager wifiManager;
-
-// LED
-#define LED_PIN 2
 
 
 void setup()
@@ -96,7 +94,7 @@ void setup()
     else {
         //we have connected to WiFi
         MDNS.begin(HOSTNAME);
-	Serial.println("connected...");
+		Serial.println("connected...");
     }
 
 	// Init OTA firmware updater
@@ -113,13 +111,13 @@ void setup()
 	Serial.println("Start WebDAV and FTP server");
 	Serial.println("--------------------------------");
 
-        SDFSConfig config;
-        config.setCSPin(chipSelect);
+	SDFSConfig config;
+	config.setCSPin(chipSelect);
 	SDFS.setConfig(config);
 	gfs.begin();
-        tcp.begin();
-        dav.begin(&tcp, &gfs);
-        dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
+	tcp.begin();
+	dav.begin(&tcp, &gfs);
+	dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
     {
         Serial.printf("%s: '%s': %d%%\n", receive ? "recv" : "send", name, percent);
     });
