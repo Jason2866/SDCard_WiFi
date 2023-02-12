@@ -7,7 +7,6 @@
 * FTP server (tested with FileZilla; for the FileZilla settings read the section FTP, please)
 * WebDAV server
 * WiFi config mode via an access point
-* SD card is in use only when a connection (WebDAV or FTP) is established
 * Over-the-Air (OTA) firmware update via a web interface
 * Info page
 * FAT16 and FAT32 support
