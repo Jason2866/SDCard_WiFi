@@ -22,8 +22,7 @@
 #include "WebOTA.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-//#include "LittleFS.h" // LittleFS is declared
-#include "SDFS.h" // SDFS is declared
+#include "SDFS.h"
 #include <SPI.h>
 #include "sdios.h"
 #include <ESPWebDAV.h>
@@ -42,8 +41,6 @@ int spi = SD_SCK_MHZ(50);
 // Webserver Infopage, Firmwareupdate
 #define WEB_SERVER_PORT 80
 
-//FS& gfs = SPIFFS;
-//FS& gfs = LittleFS;
 FS& gfs = SDFS;
 
 // Object for FtpServer
@@ -51,6 +48,8 @@ FS& gfs = SDFS;
 // FtpServer ftpSrv( 221, 25000 );
 // FtpServer ftpSrv( 421 ); // Default data port in passive mode is 55600
 FtpServer ftpSrv; // Default command port is 21 ( !! without parenthesis !! )
+#define ftp_user user
+#define ftp_pass password
 
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
@@ -66,7 +65,6 @@ WiFiManager wifiManager;
 // LED
 #define LED_PIN 2
 
-ArduinoOutStream cout( Serial );
 
 void setup()
 {
@@ -98,7 +96,7 @@ void setup()
     else {
         //we have connected to WiFi
         MDNS.begin(HOSTNAME);
-	Serial.println("connected...yeey :)");
+	Serial.println("connected...");
     }
 
 	// Init OTA firmware updater
@@ -115,19 +113,19 @@ void setup()
 	Serial.println("Start WebDAV server");
 	Serial.println("--------------------------------");
 
-	SDFSConfig config;
-    config.setCSPin(chipSelect);
-    SDFS.setConfig(config);
+        SDFSConfig config;
+        config.setCSPin(chipSelect);
+	SDFS.setConfig(config);
 	gfs.begin();
-    tcp.begin();
-    dav.begin(&tcp, &gfs);
-    dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
+        tcp.begin();
+        dav.begin(&tcp, &gfs);
+        dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
     {
         Serial.printf("%s: '%s': %d%%\n", receive ? "recv" : "send", name, percent);
     });
 
 	Serial.println("WebDAV server started");
-	ftpSrv.begin("user","password");
+	ftpSrv.begin(ftp_user,ftp_pass);
 
 	// Setup LED
 	pinMode(LED_PIN, OUTPUT);
