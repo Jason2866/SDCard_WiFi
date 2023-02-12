@@ -204,7 +204,7 @@ uint8_t FtpServer::handleFTP() {
 		  if( ftpServer.hasClient())
 		  {
 		    client.stop();
-		    client = ftpServer.available();
+		    client = ftpServer.accept();
 		  }
 #else
 			if (client && !client.connected()) {
@@ -995,12 +995,12 @@ int FtpServer::dataConnect( bool out150 )
       while( ! data.connected() && count -- > 0 )
       {
 		#if (FTP_SERVER_NETWORK_TYPE == NETWORK_WiFiNINA)
-    	  	  data = dataServer.available();
+    	  	  data = dataServer.accept();
 		#elif (defined(ESP8266) && (FTP_SERVER_NETWORK_TYPE == NETWORK_ESP8266_ASYNC || FTP_SERVER_NETWORK_TYPE == NETWORK_ESP8266 || FTP_SERVER_NETWORK_TYPE == NETWORK_ESP8266_242)) // || defined(ARDUINO_ARCH_RP2040)
 			if( dataServer.hasClient())
 			{
 			  data.stop();
-			  data = dataServer.available();
+			  data = dataServer.accept();
 			}
         #else
 			data = dataServer.accept();

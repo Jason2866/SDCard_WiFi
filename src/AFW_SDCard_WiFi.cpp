@@ -1,7 +1,8 @@
 /*
- * Alternative firmware for BTT TF Cloud devices
+ * Alternative firmware for WiFi SD Cards
  *
  * 2021 - Albrecht Lohofener (albrechtloh@gmx.de)
+ * 2023 - Johann Obermeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,10 +82,7 @@ void setup()
 	Serial.println("Connect to WiFi");
 	Serial.println("--------------------------------");
 	WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP
-	/*wifiManager.setConfigPortalBlocking(false);
-	wifiManager.setConnectTimeout(60);
-	wifiManager.setConnectRetries(10);
-	wifiManager.setWiFiAutoReconnect(true);*/
+	//wifiManager.setConnectTimeout(20);
 	bool res = wifiManager.autoConnect(HOSTNAME);
 
 	if(!res) {
