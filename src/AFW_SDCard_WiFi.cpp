@@ -93,7 +93,7 @@ void setup()
     else {
         //if you get here you have connected to the WiFi
         MDNS.begin(HOSTNAME);
-		Serial.println("connected...yeey :)");
+	Serial.println("connected...yeey :)");
     }
 
 	// Init OTA firmware updater
@@ -109,12 +109,11 @@ void setup()
 	Serial.println("--------------------------------");
 	Serial.println("Start WebDAV server");
 	Serial.println("--------------------------------");
-
-	//sd.begin(chipSelect, SPI_SPEED);
+	
 	gfs.begin();
-    tcp.begin();
-    dav.begin(&tcp, &gfs);
-    dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
+        tcp.begin();
+        dav.begin(&tcp, &gfs);
+        dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
     {
         Serial.printf("%s: '%s': %d%%\n", receive ? "recv" : "send", name, percent);
     });
