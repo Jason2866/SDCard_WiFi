@@ -33,8 +33,10 @@
 
 // SD card chip select
 #define SD_CS 5
+int csPin = SD_CS;
 int chipSelect = SD_CS;
 #define SPI_SPEED SD_SCK_MHZ(50)
+int spi = SD_SCK_MHZ(50);
 
 // Webserver Infopage, Firmwareupdate
 #define WEB_SERVER_PORT 80
