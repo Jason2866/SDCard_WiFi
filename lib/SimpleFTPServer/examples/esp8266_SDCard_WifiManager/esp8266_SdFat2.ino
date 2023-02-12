@@ -1,5 +1,5 @@
 /*
- * FtpServer Arduino with Ethernet library and w5100 shield
+ * FtpServer Arduino esp8266 with WifiManager
  * With SdFat version > 2 (full name and more size)
  *
  * #ifndef DEFAULT_FTP_SERVER_NETWORK_TYPE_ARDUINO
@@ -7,14 +7,14 @@
  *	#define DEFAULT_STORAGE_TYPE_ARDUINO STORAGE_SDFAT2
  * #endif
  *
- * AUTHOR:  Renzo Mischianti
+ * AUTHOR:  Renzo Mischianti / Johann Obermeier
  *
  * https://www.mischianti.org/2020/02/08/ftp-server-on-esp8266-and-esp32
  *
  */
 
 #include <ESP8266mDNS.h>
-#include <WiFiManager.h>
+#include <WiFiManager.h>  // lib WifiManager https://github.com/tzapu/WiFiManager
 #include <SdFat.h>
 #include <sdios.h>
 #include <FtpServer.h>
