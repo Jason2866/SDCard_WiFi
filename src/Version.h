@@ -1,7 +1,8 @@
 /*
- * Alternative firmware for BTT TF Cloud devices
+ * Alternative firmware for WiFi SD Cards
  *
  * 2021 - Albrecht Lohofener (albrechtloh@gmx.de)
+ * 2023 - Johann Obermeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,6 @@
 #define VERSION_H
 
 #define AFW_FULL_NAME "SDCard WiFi"
-#define AFW_VERSION "0.2"
+#define AFW_VERSION "0.3"
 
 #endif //VERSION_H

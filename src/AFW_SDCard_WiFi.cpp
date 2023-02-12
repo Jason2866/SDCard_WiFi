@@ -1,7 +1,8 @@
 /*
- * Alternative firmware for BTT TF Cloud devices
+ * Alternative firmware for WiFi SD Cards
  *
  * 2021 - Albrecht Lohofener (albrechtloh@gmx.de)
+ * 2023 - Johann Obermeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,35 +18,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 #include "Version.h"
-#include "ESPWebDAV.h"
-#include "ESPFtpServer.h"
 #include "WebOTA.h"
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include "SDFS.h"
+
+#include <ESPWebDAV.h>
+
+#include <FtpServer.h>
+#include <FreeStack.h>
 
 #define HOSTNAME "SDCard_WiFi"
 
-// SD card
+// LED
+#define LED_PIN 2
+
+// SD card chip select and SPI Speed
 #define SD_CS 5
+#define SPI_SPEED SD_SCK_MHZ(50)
+int chipSelect = SD_CS;
+int spi = SPI_SPEED;
 
 // Webserver Infopage, Firmwareupdate
 #define WEB_SERVER_PORT 80
 
+FS& gfs = SDFS;
+
+// Object for FtpServer
+//  Command port and Data port in passive mode can be defined here
+// FtpServer ftpSrv( 221, 25000 );
+// FtpServer ftpSrv( 421 ); // Default data port in passive mode is 55600
+FtpServer ftpSrv; // Default command port is 21 ( !! without parenthesis !! )
+#define ftp_user "user"
+#define ftp_pass "password"
+
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
+WiFiServer tcp(WEBDAV_SERVER_PORT);
+
 ESPWebDAV dav;
 String statusMessage;
-bool initFailed = false;
-
-// FTP server
-FtpServer ftpSrv;
 
 // Wifi
 WiFiManager wifiManager;
 
-// LED
-#define LED_PIN 2
 
 void setup()
 {
@@ -64,10 +82,7 @@ void setup()
 	Serial.println("Connect to WiFi");
 	Serial.println("--------------------------------");
 	WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP
-	/*wifiManager.setConfigPortalBlocking(false);
-	wifiManager.setConnectTimeout(60);
-	wifiManager.setConnectRetries(10);
-	wifiManager.setWiFiAutoReconnect(true);*/
+	//wifiManager.setConnectTimeout(20);
 	bool res = wifiManager.autoConnect(HOSTNAME);
 
 	if(!res) {
@@ -75,8 +90,9 @@ void setup()
         // ESP.restart();
     }
     else {
-        //if you get here you have connected to the WiFi
-        Serial.println("connected...yeey :)");
+        //we have connected to WiFi
+        MDNS.begin(HOSTNAME);
+		Serial.println("connected...");
     }
 
 	// Init OTA firmware updater
@@ -90,23 +106,22 @@ void setup()
 	// Start the WebDAV server
 	Serial.println("");
 	Serial.println("--------------------------------");
-	Serial.println("Start WebDAV server");
+	Serial.println("Start WebDAV and FTP server");
 	Serial.println("--------------------------------");
-	if (!dav.init(WEBDAV_SERVER_PORT))
-	{
-		statusMessage = "An error occured while initialization of WebDAV server";
-		Serial.print("ERROR: ");
-		Serial.println(statusMessage);
-		initFailed = true;
-	}
-	Serial.println("WebDAV server started");
 
-	// Start FTP server
-	Serial.println("");
-	Serial.println("--------------------------------");
-	Serial.println("Start FTP server");
-	Serial.println("--------------------------------");
-	ftpSrv.begin("anonymous", "", SD_CS, SPI_FULL_SPEED); //username, password for ftp.  set ports in ESP8266FtpServer.h  (default 21, 50009 for PASV)
+	SDFSConfig config;
+	config.setCSPin(chipSelect);
+	SDFS.setConfig(config);
+	gfs.begin();
+	tcp.begin();
+	dav.begin(&tcp, &gfs);
+	dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
+    {
+        Serial.printf("%s: '%s': %d%%\n", receive ? "recv" : "send", name, percent);
+    });
+
+	Serial.println("WebDAV server started");
+	ftpSrv.begin(ftp_user,ftp_pass);
 	Serial.println("FTP server started");
 
 	// Setup LED
@@ -118,22 +133,9 @@ void setup()
 
 void loop()
 {
-	// WebDAV
-	if (dav.isClientWaiting())
-	{
-		Serial.println("Client connected");
-		if (initFailed)
-			return dav.rejectClient(statusMessage);
-
-		// call handle if server was initialized properly
-
-		dav.initSD(SD_CS, SPI_FULL_SPEED);
-		dav.handleClient();
-	}
-
-	// FTP
-	ftpSrv.handleFTP(); //make sure in loop you call handleFTP()!!
-
+	MDNS.update();
+	dav.handleClient();
+	ftpSrv.handleFTP();
 	// Web OTA update
 	webota.handle();
 
