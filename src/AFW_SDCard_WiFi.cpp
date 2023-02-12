@@ -110,7 +110,7 @@ void setup()
 	// Start the WebDAV server
 	Serial.println("");
 	Serial.println("--------------------------------");
-	Serial.println("Start WebDAV server");
+	Serial.println("Start WebDAV and FTP server");
 	Serial.println("--------------------------------");
 
         SDFSConfig config;
@@ -126,6 +126,7 @@ void setup()
 
 	Serial.println("WebDAV server started");
 	ftpSrv.begin(ftp_user,ftp_pass);
+	Serial.println("FTP server started");
 
 	// Setup LED
 	pinMode(LED_PIN, OUTPUT);
