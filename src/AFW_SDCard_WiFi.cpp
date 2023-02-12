@@ -28,6 +28,9 @@
 #include "sdios.h"
 #include <ESPWebDAV.h>
 
+#include <FtpServer.h>
+#include <FreeStack.h>
+
 #define HOSTNAME "SDCard_WiFi"
 
 // SD card chip select
@@ -43,6 +46,12 @@ int spi = SD_SCK_MHZ(50);
 //FS& gfs = LittleFS;
 FS& gfs = SDFS;
 
+// Object for FtpServer
+//  Command port and Data port in passive mode can be defined here
+// FtpServer ftpSrv( 221, 25000 );
+// FtpServer ftpSrv( 421 ); // Default data port in passive mode is 55600
+FtpServer ftpSrv; // Default command port is 21 ( !! without parenthesis !! )
+
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
 WiFiServer tcp(WEBDAV_SERVER_PORT);
@@ -56,6 +65,8 @@ WiFiManager wifiManager;
 
 // LED
 #define LED_PIN 2
+
+ArduinoOutStream cout( Serial );
 
 void setup()
 {
@@ -85,7 +96,7 @@ void setup()
         // ESP.restart();
     }
     else {
-        //if you get here you have connected to the WiFi
+        //we have connected to WiFi
         MDNS.begin(HOSTNAME);
 	Serial.println("connected...yeey :)");
     }
@@ -103,19 +114,20 @@ void setup()
 	Serial.println("--------------------------------");
 	Serial.println("Start WebDAV server");
 	Serial.println("--------------------------------");
-	
+
 	SDFSConfig config;
-        config.setCSPin(chipSelect);
-        SDFS.setConfig(config);
+    config.setCSPin(chipSelect);
+    SDFS.setConfig(config);
 	gfs.begin();
-        tcp.begin();
-        dav.begin(&tcp, &gfs);
-        dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
+    tcp.begin();
+    dav.begin(&tcp, &gfs);
+    dav.setTransferStatusCallback([](const char* name, int percent, bool receive)
     {
         Serial.printf("%s: '%s': %d%%\n", receive ? "recv" : "send", name, percent);
     });
 
 	Serial.println("WebDAV server started");
+	ftpSrv.begin("user","password");
 
 	// Setup LED
 	pinMode(LED_PIN, OUTPUT);
@@ -128,7 +140,7 @@ void loop()
 {
 	MDNS.update();
 	dav.handleClient();
-
+	ftpSrv.handleFTP();
 	// Web OTA update
 	webota.handle();
 
