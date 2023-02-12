@@ -36,7 +36,7 @@ This options is only available if you already have an installed AFW.
 * Download the latest release
 * Open a web browser
 * Browse to `http://<your IP>/webota`
-* Select the AFW firmware e.g. `BTT-SD-TF-Cloud_AFW_0.1.bin`
+* Select the AFW firmware e.g. `firmware.bin`
 * Click update
 
 
