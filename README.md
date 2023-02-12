@@ -1,16 +1,17 @@
-# WebDAV Server and a 3D Printer
+# Alternative WiFi SD Card Firmware (AFW)
 
-This project is a WiFi WebDAV server using ESP8266 SoC. It maintains the filesystem on an SD card.
+*DISCLAIMER: This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.*
 
-Supports the basic WebDav operations - *PROPFIND*, *GET*, *PUT*, *DELETE*, *MKCOL*, *MOVE* etc.
+## Features
 
-Once the WebDAV server is running on the ESP8266, a WebDAV client like Windows can access the filesystem on the SD card just like a cloud drive. The drive can also be mounted like a networked drive, and allows copying/pasting/deleting files on SD card remotely.
-
-### 3D Printer
-
-I am using this setup as a networked drive for 3D Printer running Marlin. Following circuit with ESP8266 and a MicroSD adapter is fabricated on a PCB. A full size SD card adapter is glued to one end and provides access to all SPI data lines from printer. ESP8266 code avoids accessing micro SD card, when Marlin (printer's firmware) is reading/writing to it (detected using Chip Select line).
-
-GCode can be directly uploaded from the slicer (Cura) to this remote drive, thereby simplifying the workflow.
+* FTP server (tested with FileZilla; for the FileZilla settings read the section FTP, please)
+* WebDAV server
+* WiFi config mode via an access point
+* SD card is in use only when a connection (WebDAV or FTP) is established
+* Over-the-Air (OTA) firmware update via a web interface
+* Info page
+* FAT16 and FAT32 support
+* Supports up to 32 GB microSD/TF cards
 
 ![Printer Hookup Diagram](PrinterHookup2.jpg)
 
@@ -27,59 +28,32 @@ Use Platformio ;-)
 5. Release the module FLSH button
 6. Click Upload Button in VSC
 
-### Config
+A backup of the original firmware is always recommended. Read the section "Backup of original firmware", please.
 
-First you can see our video [here](https://www.youtube.com/watch?v=2aW-65--NJk). You have two ways to config the module.
+### Over-the-Air (OTA)
+This options is only available if you already have an installed AFW.
 
-*note: The card should be formatted for Fat16 or Fat32*
+* Download the latest release
+* Open a web browser
+* Browse to `http://<your IP>/webota`
+* Select the AFW firmware e.g. `BTT-SD-TF-Cloud_AFW_0.1.bin`
+* Click update
 
-#### Option 1: INI file
 
-You can edit the example ```SETUP.INI``` file in ```ini``` folder, change the SSID and PASSWORD value. And then copy ```SETUP.INI``` file to your root SD card. Then insert it to the module.
+* Press the RST button to restart the device
+* To verify the new firmware you can use a serial terminal e.g. minicom
 
-1. Turn the module option button to ```USB2UART```
-2. Open a COM software in your computer
-3. Connect the module to your computer with USB cable
-4. Open the software COM port
+* Now you can setup your WiFi, see section "WiFi Config"
+* Put the WiFi SD Card back into your SD card slot
 
-you can see the module IP and other information.
+## Usage
 
-*note: if you miss the serial output, you can click the ```RST``` button in the module.*
+### WiFi Config
+If no WiFi settings are stored the device opens a new access point with the SSID `BTT_TF_CLOUD_AFW`.
 
-#### Option 2 : Command
+**How to set up**
 
-Insert your sdcard to the module.
-
-1. Turn the module option button to ```USB2UART```
-2. Open a COM software in your computer
-3. Connect the module to your computer with USB cable
-4. Open the software COM port
-
-And use the following command to connect the network or check the network status
-
-    M50: Set the wifi ssid , 'M50 ssid-name'
-    M51: Set the wifi password , 'M51 password'
-    M52: Start to connect the wifi
-    M53: Check the connection status
-
-### Access
-
-#### windows
-
-To access the drive from Windows, type ```\\ip\DavWWWRoot``` at the Run prompt, this will show in serial output as our [video](https://www.youtube.com/watch?v=YAFAK-jPcOs) shows.
-
-Or use Map Network Drive menu in Windows Explorer.
-
-#### MAC
-
-Just need to use  ```http://192.168.0.x``` in access network drive option
-
-## References
-
-Marlin Firmware - [http://marlinfw.org/](http://marlinfw.org/)
-
-Cura Slicer - [https://ultimaker.com/en/products/ultimaker-cura-software](https://ultimaker.com/en/products/ultimaker-cura-software)
-
-3D Printer LCD and SD Card Interface - [http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller](http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller)
-
-LCD Schematics - [http://reprap.org/mediawiki/images/7/79/LCD_connect_SCHDOC.pdf](http://reprap.org/mediawiki/images/7/79/LCD_connect_SCHDOC.pdf)
+* Connect via to the WiFi `SDCard_WiFi`
+* Browse to `http://192.168.4.1`
+* Configure your requested WiFi
+* Save
