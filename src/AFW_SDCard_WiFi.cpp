@@ -24,7 +24,6 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include "SDFS.h"
-#include <FS.h>
 
 #include <ESPWebDAV.h>
 
@@ -121,6 +120,7 @@ void setup()
 
 	Serial.println("WebDAV server started");
 	ftp.addUser(FTP_USER, FTP_PASSWORD);
+	ftp.addFilesystem("SD", &SDFS);
 	ftp.begin();
 	Serial.println("FTP server started");
 
