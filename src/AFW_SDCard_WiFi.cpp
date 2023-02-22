@@ -24,10 +24,12 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include "SDFS.h"
+#include <FS.h>
 
 #include <ESPWebDAV.h>
 
-#include <FtpServer.h>
+#include "ESP-FTP-Server-Lib.h"
+#include "FTPFilesystem.h"
 #include <FreeStack.h>
 
 #define HOSTNAME "SDCard_WiFi"
@@ -46,13 +48,10 @@ int spi = SPI_SPEED;
 
 FS& gfs = SDFS;
 
-// Object for FtpServer
-//  Command port and Data port in passive mode can be defined here
-// FtpServer ftpSrv( 221, 25000 );
-// FtpServer ftpSrv( 421 ); // Default data port in passive mode is 55600
-FtpServer ftpSrv; // Default command port is 21 ( !! without parenthesis !! )
-#define ftp_user "user"
-#define ftp_pass "password"
+#define FTP_USER "user"
+#define FTP_PASSWORD "password"
+
+FTPServer ftp;
 
 // WebDAV server
 #define WEBDAV_SERVER_PORT 8080
@@ -121,7 +120,8 @@ void setup()
     });
 
 	Serial.println("WebDAV server started");
-	ftpSrv.begin(ftp_user,ftp_pass);
+	ftp.addUser(FTP_USER, FTP_PASSWORD);
+	ftp.begin();
 	Serial.println("FTP server started");
 
 	// Setup LED
@@ -135,7 +135,7 @@ void loop()
 {
 	MDNS.update();
 	dav.handleClient();
-	ftpSrv.handleFTP();
+	ftp.handle();
 	// Web OTA update
 	webota.handle();
 
